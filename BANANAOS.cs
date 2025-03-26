@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using UnityEngine;
 using static VelocityPlatforms.Plugin;
 
@@ -13,7 +13,6 @@ namespace BananaOS.Pages
             selectionHandler.maxIndex = 0;
         }
 
-        //What you return is what is drawn to the watch screen the screen will be updated everytime you press a button
         public override string OnGetScreenContent()
         {
             var stringBuilder = new StringBuilder();
@@ -37,7 +36,8 @@ namespace BananaOS.Pages
                 case WatchButtonType.Enter:
                     if (selectionHandler.currentIndex == 0)
                     {
-                        enabled = !enabled;
+                        enabledPlugin = !enabledPlugin;
+                        BananaNotifications.DisplayNotification(enabledPlugin ? "<align=center><size=5> Enabled" : "<align=center><size=5> Disabled", Color.yellow, enabledPlugin ? Color.green : Color.red, 1f);
                         return;
                     }
                     break;
