@@ -135,16 +135,21 @@ namespace VelocityPlatforms
         void Update()
 		{
             // Just the checks to make sure the room thingy majig is correct.
-            if (!NetworkSystem.Instance.InRoom && !ciEnabled)
+            if (!NetworkSystem.Instance.InRoom)
             {
                 RemovePlatforms();
                 return;
             }
-            else if (!NetworkSystem.Instance.GameModeString.Contains("MODDED") && !ciEnabled)
+            else if (!NetworkSystem.Instance.GameModeString.Contains("MODDED"))
             {
                 RemovePlatforms();
                 return;
             }
+	    else if (!ciEnabled)
+     	    {
+     		RemovePlatforms();
+		return;
+	    }
 
             EnsurePlatformsExist();
 
