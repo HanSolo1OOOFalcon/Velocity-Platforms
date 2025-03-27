@@ -17,17 +17,14 @@ namespace VelocityPlatforms
     {
 		void OnEnable()
 		{
-			/* Set up your mod here */
-			/* Code here runs at the start and whenever your mod is enabled*/
+            ciEnabled = true;
 
 			HarmonyPatches.ApplyHarmonyPatches();
 		}
 
 		void OnDisable()
 		{
-			/* Undo mod setup here */
-			/* This provides support for toggling mods with ComputerInterface, please implement it :) */
-			/* Code here runs whenever your mod is disabled (including if it disabled on startup)*/
+            ciEnabled = false;
 
 			HarmonyPatches.RemoveHarmonyPatches();
 		}
@@ -70,22 +67,22 @@ namespace VelocityPlatforms
         private static GameObject CreatePlatform()
 		{
 			GameObject plat = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            		plat.transform.localScale = new Vector3(0.03f, 0.4f, 0.4f);
+            plat.transform.localScale = new Vector3(0.03f, 0.4f, 0.4f);
 			plat.GetComponent<Renderer>().material.shader = Shader.Find("GorillaTag/UberShader");
-            		plat.GetComponent<Renderer>().material.color = Color.yellow;
+            plat.GetComponent<Renderer>().material.color = Color.yellow;
 			plat.SetActive(false);
 			return plat;
         }
 
-		private static void EnsurePlatformsExist()
-		{
-			if (lPlat == null)
-			{
-				lPlat = CreatePlatform();
+	private static void EnsurePlatformsExist()
+	{
+	    if (lPlat == null)
+	    {
+		lPlat = CreatePlatform();
             }
 
             if (rPlat == null)
-			{
+	    {
                 rPlat = CreatePlatform();
             }
         }
@@ -104,7 +101,25 @@ namespace VelocityPlatforms
             }
         }
 
-		// Initialize the last positions.
+        // The array of colors.
+        private static Color[] colors = new Color[]
+        {
+            Color.yellow,
+            Color.red,
+            Color.green,
+            Color.blue,
+            Color.cyan,
+            Color.magenta,
+            Color.white,
+            Color.black
+        };
+
+        private static int maxColorIndex = 7;
+
+        public static int colorIndexR = 0;
+        public static int colorIndexL = 0;
+
+        // Initialize the last positions.
         private static Vector3 lastPositionL = Vector3.zero;
 		private static Vector3 lastPositionR = Vector3.zero;
         private static Vector3 lastPositionHead = Vector3.zero;
@@ -113,18 +128,19 @@ namespace VelocityPlatforms
         private static bool lHappen = false;
         private static bool rHappen = false;
         public static bool enabledPlugin = true;
+        public static bool ciEnabled = true;
 
         // The main method.
         private static float threshold = 0.05f;
         void Update()
 		{
             // Just the checks to make sure the room thingy majig is correct.
-            if (!NetworkSystem.Instance.InRoom)
+            if (!NetworkSystem.Instance.InRoom && ciEnabled)
             {
                 RemovePlatforms();
                 return;
             }
-            else if (!NetworkSystem.Instance.GameModeString.Contains("MODDED"))
+            else if (!NetworkSystem.Instance.GameModeString.Contains("MODDED") && ciEnabled)
             {
                 RemovePlatforms();
                 return;
@@ -132,18 +148,31 @@ namespace VelocityPlatforms
 
             EnsurePlatformsExist();
 
+            // Change the color of the platforms.
+            if (colorIndexL >= 8)
+            {
+                colorIndexL = 0;
+            }
+            lPlat.GetComponent<Renderer>().material.color = colors[colorIndexL];
+
+            if (colorIndexR >= 8)
+            {
+                colorIndexR = 0;
+            }
+            rPlat.GetComponent<Renderer>().material.color = colors[colorIndexR];
+
             // Calculate movement deltas
             Vector3 headMovementDelta = GorillaTagger.Instance.headCollider.transform.position - lastPositionHead;
             Vector3 leftHandMovementDelta = GorillaTagger.Instance.leftHandTransform.position - lastPositionL;
             Vector3 rightHandMovementDelta = GorillaTagger.Instance.rightHandTransform.position - lastPositionR;
 
             // Check if hand movements are similar to head movement
-            bool leftHandMovingWithHead = Vector3.Dot(headMovementDelta.normalized, leftHandMovementDelta.normalized) > 0.9f;
-            bool rightHandMovingWithHead = Vector3.Dot(headMovementDelta.normalized, rightHandMovementDelta.normalized) > 0.9f;
+            bool leftHandMovingWithHead = Vector3.Dot(headMovementDelta.normalized, leftHandMovementDelta.normalized) > 0.4f;
+            bool rightHandMovingWithHead = Vector3.Dot(headMovementDelta.normalized, rightHandMovementDelta.normalized) > 0.4f;
 
             if (!leftHandMovingWithHead)
             {
-                if (GorillaTagger.Instance.leftHandTransform.position.y + threshold <= lastPositionL.y && enabledPlugin)
+                if (GorillaTagger.Instance.leftHandTransform.position.y + threshold <= lastPositionL.y && enabledPlugin && ciEnabled)
                 {
                     if (!lHappen)
                     {
@@ -166,7 +195,7 @@ namespace VelocityPlatforms
 
             if (!rightHandMovingWithHead)
             {
-                if (GorillaTagger.Instance.rightHandTransform.position.y + threshold <= lastPositionR.y && enabledPlugin)
+                if (GorillaTagger.Instance.rightHandTransform.position.y + threshold <= lastPositionR.y && enabledPlugin && ciEnabled)
                 {
                     if (!rHappen)
                     {
