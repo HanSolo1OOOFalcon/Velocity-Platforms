@@ -17,7 +17,7 @@ namespace BananaOS.Pages
         {
             var stringBuilder = new StringBuilder();
             stringBuilder.AppendLine("<color=yellow>==</color> Velocity Platforms <color=yellow>==</color>");
-            stringBuilder.AppendLine(selectionHandler.GetOriginalBananaOSSelectionText(0, "Toggled\n"));
+            stringBuilder.AppendLine(selectionHandler.GetOriginalBananaOSSelectionText(0, "Toggled\n")); // HELO
             stringBuilder.AppendLine(selectionHandler.GetOriginalBananaOSSelectionText(1, "Change right platform color."));
             stringBuilder.AppendLine(selectionHandler.GetOriginalBananaOSSelectionText(2, "Change left platform color."));
             return stringBuilder.ToString();
